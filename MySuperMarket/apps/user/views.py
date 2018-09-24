@@ -1,6 +1,6 @@
 import uuid
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
@@ -24,7 +24,7 @@ class LoginView(View):
         if form.is_valid():
             # 如果验证成功,则将用户名及密码传到session中
             data = form.cleaned_data.get("data")
-            # request.session.clear()
+            request.session.clear()
             request.session["id"] = data.id
             request.session["mobile"] = data.mobile
             request.session.set_expiry(0)
@@ -44,7 +44,11 @@ class LoginView(View):
 # 注册
 class RegisterView(View):
     def post(self, request):
-        data = request.POST
+        # 接收数据
+        session_code = request.session.get("session_code")
+        # 强制转换为字典
+        data = request.POST.dict()
+        data["session_code"] = session_code
         verify_form = RegisterForm(data)
         # 获取session中的验证码
 
@@ -78,19 +82,48 @@ class PersonCenterView(BaseVerifyView):
 
     def get(self, request):
         mobile = request.session.get("mobile")
-        return render(request, "user/member.html", {"mobile": mobile})
+
+        content={
+            "mobile": mobile,
+
+        }
+        return render(request, "user/member.html", content)
 
 
 # 个人资料
 class PersonView(BaseVerifyView):
     def post(self, request):
-        return render(request, "user/infor.html")
+        # 获取id
+        user_id = request.session.get("id")
+        data = request.POST
+        form = PersonModelsForm(data)
+        if form.is_valid():
+            res = form.cleaned_data
+            Person.objects.filter(id=user_id).update(name=res.get("name"),
+                                                     birthday=res.get("birthday"),
+                                                     school=res.get("school"),
+                                                     home=res.get("home"),
+                                                     address=res.get("address"),
+                                                     )
+
+            return render(request,"user/member.html")
+
+        # file = request.FILES
+        # person=Person.objects.get(id=user_id)
+        # person.head = file
+        # person.save()
+        # return HttpResponse("ok")
+        # return redirect(reverse("supermarket:person_center"))
 
     def get(self, request):
         id = request.session.get("id")
         user = Person.objects.filter(id=id).first()
         form = PersonModelsForm(instance=user)
-        return render(request, "user/infor.html", {"form": form})
+        content = {
+            "form": form,
+            "user": user
+        }
+        return render(request, "user/infor.html", content)
 
 
 # 收货地址
@@ -112,27 +145,23 @@ class SendVerifyCode(View):
         res = re.search(r, phone)
 
         if res is None:
-            return JsonResponse({"status": 400, "mag": "该号码已经被注册"})
+            return JsonResponse({"status": 400, "msg": "手机格式不正确"})
 
         # 验证号码是否已经注册
         res = Person.objects.filter(mobile=phone).exists()
         if res:
-            return JsonResponse({"status": 400, "mag": "该号码已经被注册"})
+            return JsonResponse({"status": 400, "msg": "该号码已经被注册"})
 
         # 生成随机验证码
         import random
         code = [str(random.randint(0, 9)) for i in range(4)]
         code = "".join(code)
         print("==============" + code + "=============")
-
-        __business_id = uuid.uuid1()
-        # print(__business_id)
-        params = "{\"code\":\"%s\"}" % code
-        rs = send_sms(__business_id, phone, "尹强", "SMS_141905190", params)
-        print(rs)
-
         # 将验证码保存到session中,
-        request.session["verify_code"] = code
+        request.session["session_code"] = code
         request.session.set_expiry(60)
-
+        # __business_id = uuid.uuid1()
+        # print(__business_id)
+        # params = "{\"code\":\"%s\"}" % code
+        # rs = send_sms(__business_id, phone, "尹强", "SMS_141905190", params)
         return JsonResponse({"status": 200})

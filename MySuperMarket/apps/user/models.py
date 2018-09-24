@@ -7,7 +7,7 @@ from db.base_model import BaseModel
 
 class Person(BaseModel):
     set=((1,"男"),(2,"女"),(3,"保密"))
-    # logo = models.ImageField(upload_to='head/%Y/%m/%d', default='default/infortx.png', verbose_name='LOGO')
+    head = models.ImageField(upload_to='head/%Y/%m/%d', default='logo/2018/09/24/infortx.png', verbose_name='head')
     name = models.CharField(max_length=20, verbose_name="昵称", null=True, blank=True)
     gender = models.SmallIntegerField(choices=set, verbose_name="性别",default=3)
     school = models.CharField(max_length=20, verbose_name="学校", null=True, blank=True)
@@ -24,8 +24,11 @@ class Person(BaseModel):
     class Meta:
         db_table="person"
 
-    def __str__(self):
-        return self.mobile+"......."+self.pwd
+
+
+
+class SendImage(models.Model):
+    head=models.ImageField(upload_to="imgs/%Y/%m/%d",verbose_name="图片")
 
 
 
