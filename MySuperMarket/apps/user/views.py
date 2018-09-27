@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from db.base_view import BaseVerifyView
 from user.forms import LoginForm, RegisterForm, PersonModelsForm
@@ -28,7 +29,11 @@ class LoginView(View):
             request.session["id"] = data.id
             request.session["mobile"] = data.mobile
             request.session.set_expiry(0)
-            return redirect(reverse("supermarket:person_center"))
+
+            if request.GET.get("next"):
+                return redirect(request.GET.get("next"))
+            else:
+                return redirect(reverse("supermarket:person_center"))
 
         else:
             content = {
@@ -82,9 +87,11 @@ class PersonCenterView(BaseVerifyView):
 
     def get(self, request):
         mobile = request.session.get("mobile")
-
-        content={
+        user_id = request.session.get("id")
+        person = Person.objects.get(id=user_id)
+        content = {
             "mobile": mobile,
+            "person": person,
 
         }
         return render(request, "user/member.html", content)
@@ -94,26 +101,37 @@ class PersonCenterView(BaseVerifyView):
 class PersonView(BaseVerifyView):
     def post(self, request):
         # 获取id
-        user_id = request.session.get("id")
-        data = request.POST
-        form = PersonModelsForm(data)
+        id=request.session.get("id")
+
+
+        # 需要修改当前登陆人这个对象
+        user = Person.objects.filter(pk=id).first()
+        # form 保持数据的 需要传第二个参数 instance = 需要修改的实例对象
+        form = PersonModelsForm(request.POST,request.FILES, instance=user)
         if form.is_valid():
-            res = form.cleaned_data
-            Person.objects.filter(id=user_id).update(name=res.get("name"),
-                                                     birthday=res.get("birthday"),
-                                                     school=res.get("school"),
-                                                     home=res.get("home"),
-                                                     address=res.get("address"),
-                                                     )
+            form.save()
+            return redirect(reverse('supermarket:person_center'))
+        else:
+            return render(request, "user/infor.html", {"form": form})
 
-            return render(request,"user/member.html")
-
-        # file = request.FILES
-        # person=Person.objects.get(id=user_id)
-        # person.head = file
-        # person.save()
-        # return HttpResponse("ok")
-        # return redirect(reverse("supermarket:person_center"))
+    # user_id = request.session.get("id")
+    # data = request.POST
+    # file = request.FILES["head"]
+    # person = Person.objects.get(id=user_id)
+    # person.head = file
+    # person.save()
+    # form = PersonModelsForm(data)
+    # if form.is_valid():
+    #     res = form.cleaned_data
+    #     Person.objects.filter(id=user_id).update(name=res.get("name"),
+    #                                              birthday=res.get("birthday"),
+    #                                              school=res.get("school"),
+    #                                              home=res.get("home"),
+    #                                              address=res.get("address"),
+    #
+    #                                              )
+    #
+    #     return render(request, "user/member.html")
 
     def get(self, request):
         id = request.session.get("id")
@@ -124,6 +142,21 @@ class PersonView(BaseVerifyView):
             "user": user
         }
         return render(request, "user/infor.html", content)
+
+
+# 单独写一个图片上传
+# @csrf_exempt  # 移除令牌限制
+# def unload(request):
+#     if request.method == "POST":
+#         id = request.session.get("id")
+#         # 获取对象
+#         person = Person.objects.get(id=id)
+#         # 保存图片
+#         person.head = request.FILES["file"]
+#         person.save()
+#         return JsonResponse({"error": 0})
+#     else:
+#         return JsonResponse({"error": 1})
 
 
 # 收货地址
