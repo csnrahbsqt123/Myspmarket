@@ -1,0 +1,4 @@
+
+{{object.sku_name}}
+{{object.describe}}
+{{object.goods_spu.content}}

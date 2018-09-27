@@ -1,0 +1,59 @@
+{% extends 'goods/base.html' %}
+{% block meta_title %}搜索{% endblock %}
+{% block css %}
+    <style>
+    .shop-list-mid .tit a {
+            color: #909090;
+            font-size: 1.4rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: normal;
+            text-overflow: ellipsis;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <header data-am-widget="header" class="am-header am-header-default sq-head ">
+        <div class="am-header-left am-header-nav">
+            <a href="javascript:history.back()" class="">
+                <i class="am-icon-chevron-left"></i>
+            </a>
+        </div>
+        <div class="cate-search">
+            <form action="/search/" method="get">
+                <input type="text" name="q" value="{{ query }}" class="cate-input" placeholder="请输入您要的搜索的产品关键词"/>
+                <input type="submit" class="cate-btn" value=""/>
+            </form>
+        </div>
+    </header>
+    <div style="height: 49px;"></div>
+        {% if query %}
+        <ul class="list-pro" style="margin-top: 20px">
+            {% for result in page %}
+                <li>
+                    <a href="{% url 'goods:detail' result.object.pk %}"><img
+                            src="{{ MEDIA_URL }}{{ result.object.logo }}" class="list-pic1"/></a>
+                    <div class="shop-list-mid" style="width: 65%;">
+                        <div class="tit">
+                            <a href="{% url 'goods:detail' result.object.pk %}">
+                                {{ result.object.goods_spu.spu_name }}{{ result.object.sku_name }}
+                            </a>
+                        </div>
+                        <div class="am-gallery-desc">￥{{ result.object.price }}</div>
+                        <p>销量：{{ result.object.sale_num }}件</p>
+                    </div>
+                </li>
+                {% empty %}
+                <li>没有找到您搜索的产品！</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
+
+
+
+
