@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'ckeditor',  # 添加ckeditor富文本编辑器
     'ckeditor_uploader',  # 添加ckeditor富文本编辑器文件上传部件
     'haystack',  # 全文检索框架
+    'order',
 ]
 
 MIDDLEWARE = [

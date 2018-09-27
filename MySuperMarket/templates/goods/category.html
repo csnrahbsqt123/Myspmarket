@@ -74,7 +74,8 @@
                         <div class="list-cart">
                             <div class="d-stock ">
                                 <a class="decrease">-</a>
-                                    <input sku-id="{{ goods.id }}" readonly="" class="text_box" name="" type="text" value="0">
+                                <input sku-id="{{ goods.id }}" readonly="" class="text_box" name="" type="text"
+                                       value="0">
                                 <a class="increase">+</a>
                             </div>
                         </div>
@@ -90,13 +91,13 @@
     <!--底部-->
     <div style="height: 55px;"></div>
     <div class="fix-bot">
-        <div class="fix-bot-cart"><i id="total_count">{{ total_count }}</i></div>
+        <div class="fix-bot-cart"><a href="{% url "shopCart:cart" %}"><i id="total_count">{{ total_count }}</i></a></div>
         <a href="{% url "shopCart:tureorder" %}" class="list-js">去结算</a>
         <a href="{% url "shopCart:tureorder" %}" class="list-jsk">一键快购</a>
-        <!--<div class="js-text">
-           <p><b>￥217.80</b></p>
-           <p class="js-car">购物满50元免运费</p>
-     </div>-->
+{#        <div class="js-text">#}
+{#           <p><b>￥217.80</b></p>#}
+{#           <p class="js-car">购物满50元免运费</p>#}
+{#        </div>#}
     </div>
 
 {% endblock %}
@@ -119,25 +120,24 @@
                 //ajax请求
                 //准备sku_id和count
 
-                var sku_id=self.siblings("input").attr("sku-id");
+                var sku_id = self.siblings("input").attr("sku-id");
 
-                var data={
-                    "sku_id":sku_id,
+                var data = {
+                    "sku_id": sku_id,
                     "count":1,
                     "csrfmiddlewaretoken": "{{  csrf_token }}"
                 };
-                $.post("{% url "shopCart:cart" %}",data,function(data){
+                $.post("{% url "shopCart:add" %}", data, function (data) {
                     if (data.error == 3) {
-                            {#需要在登录详情view函数中,做一个判断,如果接受到的是一个next,则返回商品详情页#}
-                            location.href = "{% url "supermarket:login" %}?next={% url "goods:category" cate_id order %}"
-                        } else if (data.error == 0) {
-                            $("#total_count").html(data.total_count)
-                        }else{
-                            alert(data.msg)
-                        }
+                        {#需要在登录详情view函数中,做一个判断,如果接受到的是一个next,则返回商品详情页#}
+                        location.href = "{% url "supermarket:login" %}?next={% url "goods:category" cate_id order %}"
+                    } else if (data.error == 0) {
+                        $("#total_count").html(data.total_count)
+                    } else {
+                        alert(data.msg)
+                    }
                 });
             });
-
 
 
             $('.decrease').click(function () {
@@ -151,6 +151,26 @@
                     }
                     self.siblings('input').val(current_num);
 
+                    {#购物车数量减少#}
+                    //ajax请求
+                    //准备sku_id
+
+                    var sku_id = self.siblings("input").attr("sku-id");
+
+                    var data = {
+                        "sku_id": sku_id,
+                        "csrfmiddlewaretoken": "{{  csrf_token }}"
+                    };
+                    $.post("{% url "shopCart:reduce" %}", data, function (data) {
+                        if (data.error == 3) {
+                            {#需要在登录详情view函数中,做一个判断,如果接受到的是一个next,则返回商品详情页#}
+                            location.href = "{% url "supermarket:login" %}?next={% url "goods:category" cate_id order %}"
+                        } else if (data.error == 0) {
+                            $("#total_count").html(data.total_count)
+                        } else {
+                            alert(data.msg)
+                        }
+                    });
                 }
             })
 
