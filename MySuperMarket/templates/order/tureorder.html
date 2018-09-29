@@ -1,0 +1,96 @@
+{% extends "goods/base.html" %}
+{% load static %}
+{% block meta_title %}
+    超市
+{% endblock %}
+
+{% block content %}
+    <header data-am-widget="header" class="am-header am-header-default sq-head ">
+        <div class="am-header-left am-header-nav">
+            <a href="javascript:history.back()" class="">
+                <i class="am-icon-chevron-left"></i>
+            </a>
+        </div>
+        <h1 class="am-header-title">
+            <a href="" class="">确认订单</a>
+        </h1>
+    </header>
+    <div style="height: 49px;"></div>
+    <div class="add-address">
+        <a href="{% url "order:新增地址" %}">+新建收货地址</a>
+        <i class="am-icon-angle-right"></i>
+    </div>
+    <div style="background: #eee; height: 10px;"></div>
+    <ul class="shopcart-list" style="padding-bottom: 0;">
+        {% for goods in goods_list %}
+            <li>
+            <img src="{{ MEDIA_URL }}{{ goods.logo }}" class="shop-pic"/>
+            <div class="order-mid">
+                <div class="tit">{{ goods.sku_name }}</div>
+                <div class="order-price">￥{{ goods.price }} <i>X{{ goods.count }}</i></div>
+
+            </div>
+        </li>
+        {% endfor %}
+
+
+    </ul>
+    <ul class="order-infor">
+        <li class="order-infor-first">
+            <span>商品总计：</span>
+            <i>￥{{ total_price }}</i>
+        </li>
+        <li class="order-infor-first">
+            <span>配送方式：</span>
+            <i>
+                <select name="transport" id="transport">
+                    {% for trans in transport %}
+                        <option value="{{ trans.id }}" price="{{ trans.price }}" >{{ trans.name }}--{{ trans.price }}元</option>
+                    {% endfor %}
+
+
+                </select>
+            </i>
+        </li>
+        <li class="order-infor-first">
+            <a href="">积分抵费></a>
+        </li>
+        <li class="order-infor-first">
+            <a href="">选择优惠券></a>
+        </li>
+    </ul>
+    <div style="background: #eee; height: 10px;"></div>
+    <textarea placeholder="备注说明" class="bz-infor"></textarea>
+    <div style="background: #eee; height: 10px;"></div>
+    <div style="height: 55px;"></div>
+    <div class="shop-fix">
+        <div class="order-text">
+            应付总额：￥<span class="a_price">{{ total_price_trans }}</span>
+            <input type="hidden" class="b_price" value="{{ total_price_trans }}">
+        </div>
+        <a  href="{% url "order:提交订单" %}" class="js-btn">提交订单</a>
+    </div>
+    <!--底部-->
+    {% include "bottom.html" %}
+
+    <script>
+        $(function () {
+            $("#transport").on("change",function () {
+                //获取所有选中的下拉框元素
+                var option=$(this).find(":selected");
+                //获取原始的总金额
+                var total_price=$(".b_price").val();
+                //获取所选的配送金额
+                var price=option.attr("price")
+                {#console.debug(price)#}
+                //计算总金额
+                var total_price_trans=parseFloat(price)+parseFloat(total_price);
+                $(".a_price").text(total_price_trans)
+
+            })
+
+        })
+    </script>
+
+{% endblock %}
+

@@ -16,6 +16,10 @@
     <script src="{% static 'js/jquery-1.10.2.min.js' %}"></script>
     <script src="{% static 'js/time.js' %}"></script>
     <script src="{% static 'js/popup.mini.js' %}"></script>
+    <script src="{% static 'js/area.js' %}"></script>
+    <script src="{% static 'js/date.js' %}"></script>
+    <script src="{% static 'js/iscroll.js' %}"></script>
+    <link href="{% static 'css/check.css' %}" rel="stylesheet" type="text/css"/>
 
     {% block css %}
 
@@ -26,14 +30,14 @@
 
 </head>
 <body>
-    {% block content %}
+{% block content %}
 
 
-    {% endblock %}
-        <script src="{% static 'js/jquery.min.js' %}"></script>
-            <script src="{% static 'js/amazeui.min.js' %}"></script>
-    {% block footer_js %}
+{% endblock %}
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/amazeui.min.js' %}"></script>
+{% block footer_js %}
 
-    {% endblock %}
+{% endblock %}
 </body>
 </html>

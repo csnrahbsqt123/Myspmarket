@@ -180,10 +180,3 @@ class CartView(BaseVerifyView):
         return render(request, "cart/shopcart.html", content)
 
 
-# 结算
-class AccountView(View):
-    def get(self, request):
-        return render(request, "cart/tureorder.html")
-
-    def post(self, request):
-        return render(request, "cart/tureorder.html")

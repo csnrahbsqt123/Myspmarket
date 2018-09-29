@@ -21,11 +21,17 @@ from goods.views import IndexView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # 用户
     url(r'^supermarket/', include("user.urls", namespace="supermarket")),
+    # 商品
     url(r'^supermarket/', include("goods.urls", namespace="goods")),
+    #富文本框
     url(r'^ckeditor/', include("ckeditor_uploader.urls")),
+    # 首页
     url(r'^$', IndexView.as_view()),
+    #购物车
     url(r'^shopCart/', include("cart.urls",namespace="shopCart")),
     # 全文搜索框架
     url(r'^search/', include('haystack.urls')),
+    url(r'^oder/',include("order.urls",namespace="order"))
 ]

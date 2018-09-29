@@ -91,9 +91,9 @@
     <!--底部-->
     <div style="height: 55px;"></div>
     <div class="fix-bot">
-        <div class="fix-bot-cart"><a href="{% url "shopCart:cart" %}"><i id="total_count">{{ total_count }}</i></a></div>
-        <a href="{% url "shopCart:tureorder" %}" class="list-js">去结算</a>
-        <a href="{% url "shopCart:tureorder" %}" class="list-jsk">一键快购</a>
+        <a href="{% url "shopCart:cart" %}"><div class="fix-bot-cart"><i id="total_count">{{ total_count }}</i></div></a>
+        <a href="{% url "order:确认订单" %}" class="list-js">去结算</a>
+        <a href="{% url "order:确认订单" %}" class="list-jsk">一键快购</a>
 {#        <div class="js-text">#}
 {#           <p><b>￥217.80</b></p>#}
 {#           <p class="js-car">购物满50元免运费</p>#}
